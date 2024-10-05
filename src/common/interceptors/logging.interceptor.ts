@@ -1,4 +1,3 @@
-import { RequestService } from '@/common/services/request.service';
 import {
     CallHandler,
     ExecutionContext,
@@ -12,8 +11,6 @@ import { catchError, tap } from 'rxjs/operators';
 @Injectable()
 export class LoggingInterceptor implements NestInterceptor {
     private readonly logger = new Logger(LoggingInterceptor.name);
-
-    constructor(private readonly requestService: RequestService) {}
 
     intercept(context: ExecutionContext, next: CallHandler): Observable<any> {
         const request = context.switchToHttp().getRequest();

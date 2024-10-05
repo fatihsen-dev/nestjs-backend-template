@@ -1,9 +1,11 @@
 import { IsPublic } from '@/common/decorators/public.decorator';
+import { GetUser } from '@/common/decorators/user.decorator';
 import { Body, Controller, Get, Inject, Post } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
+import { CreateDto } from '../users/dto/create.dto';
+import { User } from '../users/entities/user.entity';
 import { AuthService } from './auth.service';
 import { LoginDto } from './dto/login.dto';
-import { RegisterDto } from './dto/register.dto';
 
 @ApiTags('Auth')
 @Controller('auth')
@@ -12,8 +14,8 @@ export class AuthController {
 
     @IsPublic()
     @Post('register')
-    register(@Body() registerDto: RegisterDto) {
-        return this.authService.register(registerDto);
+    register(@Body() createDto: CreateDto) {
+        return this.authService.register(createDto);
     }
 
     @IsPublic()
@@ -23,7 +25,7 @@ export class AuthController {
     }
 
     @Get('auth-user')
-    authUser() {
-        return this.authService.AuthUser();
+    authUser(@GetUser() user: User) {
+        return this.authService.AuthUser(user);
     }
 }

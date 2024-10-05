@@ -3,31 +3,50 @@ import {
     Catch,
     ExceptionFilter,
     HttpException,
-    Inject,
+    HttpStatus,
 } from '@nestjs/common';
 import { Request, Response } from 'express';
-import { LogService } from '../services/log.service';
+import {
+    CannotCreateEntityIdMapError,
+    EntityNotFoundError,
+    QueryFailedError,
+} from 'typeorm';
 
-@Catch(HttpException)
+@Catch(HttpException, QueryFailedError, EntityNotFoundError)
 export class HttpExceptionFilter implements ExceptionFilter {
-    @Inject(LogService) logService: LogService;
-
     catch(exception: HttpException, host: ArgumentsHost) {
         const ctx = host.switchToHttp();
         const response = ctx.getResponse<Response>();
         const request = ctx.getRequest<Request>();
-        const status = exception.getStatus();
+        let message = exception.message;
+        let status = HttpStatus.INTERNAL_SERVER_ERROR;
 
-        this.logService.logDiscordWebhook(request, exception);
+        switch (exception.constructor) {
+            case QueryFailedError:
+                status = HttpStatus.UNPROCESSABLE_ENTITY;
+                message = exception.message;
+                break;
+            case EntityNotFoundError:
+                status = HttpStatus.UNPROCESSABLE_ENTITY;
+                message = exception.message;
+                break;
+            case CannotCreateEntityIdMapError:
+                status = HttpStatus.UNPROCESSABLE_ENTITY;
+                message = exception.message;
+                break;
+            default:
+                message = exception?.getResponse
+                    ? (exception?.getResponse() as any).message
+                    : exception.message;
+                status = exception?.getStatus ? exception.getStatus() : status;
+        }
 
-        response.status(status).json(
-            status === 500
-                ? {
-                      message: 'Internal server error',
-                      error: 'Internal server error',
-                      status,
-                  }
-                : exception.getResponse(),
-        );
+        response.status(status).json({
+            message,
+            status,
+            timestamp: new Date().toISOString(),
+            path: request.url,
+            method: request.method,
+        });
     }
 }

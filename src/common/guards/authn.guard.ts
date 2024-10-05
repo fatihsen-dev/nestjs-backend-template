@@ -1,3 +1,4 @@
+import { User } from '@/modules/users/entities/user.entity';
 import {
     CanActivate,
     ExecutionContext,
@@ -6,14 +7,16 @@ import {
     UnauthorizedException,
 } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
-import { RequestService } from '../services/request.service';
+import { JwtService } from '@nestjs/jwt';
+import { Request } from 'express';
+import { ENV } from '../config';
 
 @Injectable()
 export class AuthnGuard implements CanActivate {
-    @Inject(RequestService) requestService: RequestService;
     @Inject(Reflector) reflector: Reflector;
+    @Inject(JwtService) jwtService: JwtService;
 
-    canActivate(context: ExecutionContext) {
+    async canActivate(context: ExecutionContext) {
         const isPublic = this.reflector.getAllAndOverride('isPublic', [
             context.getHandler(),
             context.getClass(),
@@ -21,12 +24,33 @@ export class AuthnGuard implements CanActivate {
 
         if (isPublic) return true;
 
-        const user = this.requestService.getAuthUser();
+        const request = context.switchToHttp().getRequest();
+        const token = this.extractTokensFromCookie(request);
 
-        if (!user) {
+        if (!token) {
+            throw new UnauthorizedException('Invalid token');
+        }
+
+        try {
+            const user = await this.jwtService.verifyAsync<User>(token, {
+                secret: ENV.JWT_REFRESH_SECRET_KEY,
+            });
+
+            request.user = user;
+
+            return true;
+        } catch (error) {
+            throw new UnauthorizedException('Invalid token');
+        }
+    }
+
+    private extractTokensFromCookie(request: Request): string {
+        const token = request.headers.authorization?.split(' ')[1];
+
+        if (!token && !token?.length) {
             throw new UnauthorizedException();
         }
 
-        return true;
+        return token;
     }
 }
