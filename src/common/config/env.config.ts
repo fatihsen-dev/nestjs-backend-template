@@ -6,5 +6,5 @@ export const ENV = cleanEnv(process.env, {
     PREFIX: str({ default: 'v1' }),
     JWT_ACCESS_SECRET_KEY: str(),
     JWT_REFRESH_SECRET_KEY: str(),
-    DC_WEBHOOK_URL: str(),
+    DC_WEBHOOK_URL: str({ default: null }),
 });

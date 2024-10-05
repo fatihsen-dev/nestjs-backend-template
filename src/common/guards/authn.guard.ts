@@ -3,11 +3,14 @@ import {
     ExecutionContext,
     Inject,
     Injectable,
+    UnauthorizedException,
 } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
+import { RequestService } from '../services/request.service';
 
 @Injectable()
-export class AuthGuard implements CanActivate {
+export class AuthnGuard implements CanActivate {
+    @Inject(RequestService) requestService: RequestService;
     @Inject(Reflector) reflector: Reflector;
 
     canActivate(context: ExecutionContext) {
@@ -17,6 +20,13 @@ export class AuthGuard implements CanActivate {
         ]);
 
         if (isPublic) return true;
-        return false;
+
+        const user = this.requestService.getAuthUser();
+
+        if (!user) {
+            throw new UnauthorizedException();
+        }
+
+        return true;
     }
 }

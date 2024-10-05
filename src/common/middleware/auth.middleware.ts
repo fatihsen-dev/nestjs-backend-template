@@ -27,7 +27,7 @@ export class AuthMiddleware implements NestMiddleware {
                     },
                 );
 
-                this.requestService.setUser(user);
+                this.requestService.setAuthUser(user);
             } catch (error) {
                 throw new UnauthorizedException('Invalid token');
             }

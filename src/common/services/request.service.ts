@@ -5,11 +5,11 @@ import { RequestUser } from '../types/request-user';
 export class RequestService {
     private user: RequestUser | null = null;
 
-    setUser(user: RequestUser | null) {
+    setAuthUser(user: RequestUser | null) {
         this.user = user;
     }
 
-    getUser() {
+    getAuthUser() {
         return this.user;
     }
 }

@@ -3,13 +3,15 @@ import { LoggingInterceptor } from '@/common/interceptors/logging.interceptor';
 import { AuthMiddleware } from '@/common/middleware/auth.middleware';
 import { CacheModule } from '@nestjs/cache-manager';
 import { MiddlewareConsumer, Module, NestModule, Scope } from '@nestjs/common';
-import { APP_FILTER, APP_INTERCEPTOR } from '@nestjs/core';
+import { APP_FILTER, APP_GUARD, APP_INTERCEPTOR } from '@nestjs/core';
 import { JwtModule } from '@nestjs/jwt';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
+import { AuthnGuard } from './common/guards/authn.guard';
 import { LogService } from './common/services/log.service';
 import { RequestService } from './common/services/request.service';
 import { AuthModule } from './modules/auth/auth.module';
+import { UsersModule } from './modules/users/users.module';
 
 const modules = [AuthModule];
 
@@ -22,6 +24,7 @@ const modules = [AuthModule];
             global: true,
         }),
         ...modules,
+        UsersModule,
     ],
     controllers: [AppController],
     providers: [
@@ -36,6 +39,10 @@ const modules = [AuthModule];
         {
             provide: APP_FILTER,
             useClass: HttpExceptionFilter,
+        },
+        {
+            provide: APP_GUARD,
+            useClass: AuthnGuard,
         },
     ],
 })
