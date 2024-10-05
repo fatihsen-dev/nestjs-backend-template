@@ -28,7 +28,7 @@ export class UsersController {
         const user = await this.usersService.findById(id);
 
         if (!user) {
-            throw new NotFoundException('Kullanıcı bulunamdı');
+            throw new NotFoundException('User not found');
         }
 
         delete user?.password;

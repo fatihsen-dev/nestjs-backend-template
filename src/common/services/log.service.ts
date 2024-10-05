@@ -11,6 +11,10 @@ export class LogService {
             exception instanceof HttpException ? exception.getStatus() : 500;
         const userAgent = req.get('user-agent') || '';
 
+        if (!ENV.DC_WEBHOOK_URL) {
+            throw new Error('env variable required DC_WEBHOOK_URL');
+        }
+
         await axios.post(ENV.DC_WEBHOOK_URL, {
             embeds: [
                 {

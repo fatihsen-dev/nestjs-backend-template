@@ -5,7 +5,7 @@ export class IdParamDto {
     @IsNumber(
         {},
         {
-            message: 'id parametresi bir sayı olmalıdır',
+            message: 'id parameter must be a number',
         },
     )
     @Transform(({ obj }) => {

@@ -28,11 +28,11 @@ export class AuthService {
         const user = await this.usersService.findByUsername(loginDto.username);
 
         if (!user) {
-            throw new NotFoundException('Kullanıcı bulunamdı');
+            throw new NotFoundException('User not found');
         }
 
         if (!(await compare(loginDto.password, user.password))) {
-            throw new UnauthorizedException('Kullanıcı adı veya şifre hatalı');
+            throw new UnauthorizedException('Username or password incorrect');
         }
 
         delete user?.password;

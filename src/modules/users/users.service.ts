@@ -22,7 +22,7 @@ export class UsersService {
             });
         } catch (error) {
             throw new ConflictException(
-                'Kullanıcı adı başka biri tarafından kullanılıyor',
+                'Username is being used by someone else',
             );
         }
     }
@@ -57,7 +57,7 @@ export class UsersService {
         const user = await this.findById(id);
 
         if (!user) {
-            throw new NotFoundException('Kullanıcı bulunamdı');
+            throw new NotFoundException('User not found');
         }
 
         try {
@@ -69,7 +69,7 @@ export class UsersService {
             );
         } catch (error) {
             throw new ConflictException(
-                'Kullanıcı adı başka biri tarafından kullanılıyor',
+                'Username is being used by someone else',
             );
         }
     }
